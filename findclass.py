@@ -2,6 +2,13 @@
 import socket
 import database
 import time
+from datetime import datetime
+b = database.MysqlClass()
+a = datetime.now()
+
+data = 't11122334,' + str(datetime.isoweekday(a)) + ',' + a.strftime("%H")
+
+print (b.get_course_name(data))
 
 
 """

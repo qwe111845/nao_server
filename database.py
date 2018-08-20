@@ -53,6 +53,22 @@ class MysqlClass:
 
         return class_names
 
+    def get_course_name(self, course):
+        course_data = course.split(',')
+
+        sql = "SELECT course_name FROM course_information WHERE course_teacher = '%s' "\
+              "and course_dayofweek = %s and course_starthour <= %s and course_endhour >= %s " \
+              % (course_data[0], course_data[1], course_data[2], course_data[2])
+
+        self.cursor.execute(sql)
+        results = self.cursor.fetchone()
+        print (sql)
+        if results is not None:
+            return results[0]
+        else:
+
+            return '目前沒有課程'
+
     def link_mysql(self, course):
 
         students = ''

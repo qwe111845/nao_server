@@ -82,7 +82,12 @@ class MultiThread(object):
                         class_names = self.db.get_class().encode('utf-8')
                         client.send(class_names)
                         print('課程:', class_names.decode('utf-8'))
-
+                    elif data == '找課程':
+                        client.send('ok')
+                        data = client.recv(size)
+                        response = self.db.get_course_name(data)
+                        print (response)
+                        client.send(response)
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
                         client.sendall(data.decode('utf-8'))
