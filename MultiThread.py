@@ -92,7 +92,7 @@ class MultiThread(object):
                         client.send('Which unit do you want to choose?')
                         reading_unit = client.recv(size)
                         reading_data = self.db.get_reading(reading_unit).encode('utf-8')
-                        client.send(reading_data)
+                        client.sendall(reading_data)
                         link = False
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
