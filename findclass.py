@@ -1,40 +1,41 @@
 # -*- coding: utf-8 -*-
+
+import time
+
+
 import socket
 import database
 import time
+""""
 from datetime import datetime
 b = database.MysqlClass()
 a = datetime.now()
 
 data = 't11122334,' + str(datetime.isoweekday(a)) + ',' + a.strftime("%H")
 
-print (b.get_course_name(data))
-
+print (b.get_reading(1))
 
 """
+
+port = 5007
 try:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     s.connect(('140.134.26.200', port))
-    s.send(str('點名'))
+    s.send('reading')
+    response = s.recv(2048)
+    s.send('1')
+    data = s.recv(8192)
+    reading_data = data.split(';;')
+    if reading_data[len(reading_data) - 1] == '':
+        del reading_data[len(reading_data) - 1]
 
-    class_data = s.recv(2048)
-    if class_data == '接收點名':
-        p = '英語會話'
-        s.sendall(p)
-        class_data = ''
+    print (reading_data)
 
-        class_data = s.recv(4096)
-        id = 0
-        while class_data == '' and id < 5:
-            time.sleep(1.5)
-            class_data = s.recv(4096)
-            print ('等')
-            id = id +1
 
-        print (class_data)
 finally:
     try:
-        s.close()
+        s.close() # activate output of the box
     except:
         pass
-"""
+
+

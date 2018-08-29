@@ -62,7 +62,7 @@ class MysqlClass:
 
         self.cursor.execute(sql)
         results = self.cursor.fetchone()
-        print (sql)
+
         if results is not None:
             return results[0]
         else:
@@ -70,7 +70,6 @@ class MysqlClass:
             return '目前沒有課程'
 
     def link_mysql(self, course):
-
         students = ''
         try:
             print('連接mysql')
@@ -125,3 +124,19 @@ class MysqlClass:
         results = self.cursor.fetchone()
 
         return results[0]
+
+    def get_reading(self, unit):
+        sql = "use network;"
+        self.cursor.execute(sql)
+
+        sql = "SELECT content FROM reading WHERE unit = " + str(unit) + ";"
+        self.cursor.execute(sql)
+
+        reading = ''
+        results = self.cursor.fetchall()
+        for res in results:
+            reading += res[0] + ";;"
+
+        return reading
+
+

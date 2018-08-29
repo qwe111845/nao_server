@@ -41,9 +41,9 @@ class MultiThread(object):
 
                     if data == '點名':
                         client.sendall('接收點名')
-                        data = client.recv(size)
+                        roll_call_course = client.recv(size)
 
-                        self.course = data.strip()
+                        self.course = roll_call_course.strip()
                         print(self.course)
 
                         all_students = self.db.link_mysql(self.course)
@@ -63,11 +63,11 @@ class MultiThread(object):
 
                         print('傳送 接收成功')
 
-                        data = client.recv(size)
-                        ok = self.db.roll_call(data, self.course)
+                        roll_call_data = client.recv(size)
+                        ok = self.db.roll_call(roll_call_data, self.course)
 
                         if ok:
-                            print(data, '出席紀錄成功')
+                            print(roll_call_data, '出席紀錄成功')
                             link = False
                     elif data == '課堂作業':
                         classwork = self.db.get_classwork().encode('utf-8')
@@ -84,10 +84,16 @@ class MultiThread(object):
                         print('課程:', class_names.decode('utf-8'))
                     elif data == '找課程':
                         client.send('ok')
-                        data = client.recv(size)
-                        response = self.db.get_course_name(data)
+                        course_name = client.recv(size)
+                        response = self.db.get_course_name(course_name).encode('utf-8')
                         print (response)
                         client.send(response)
+                    elif data == 'reading':
+                        client.send('Which unit do you want to choose?')
+                        reading_unit = client.recv(size)
+                        reading_data = self.db.get_reading(reading_unit).encode('utf-8')
+                        client.send(reading_data)
+                        link = False
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
                         client.sendall(data.decode('utf-8'))
