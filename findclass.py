@@ -1,41 +1,18 @@
-# -*- coding: utf-8 -*-
-
-import time
-
-
 import socket
-import database
-import time
-""""
-from datetime import datetime
-b = database.MysqlClass()
-a = datetime.now()
 
-data = 't11122334,' + str(datetime.isoweekday(a)) + ',' + a.strftime("%H")
+SIZE = 1024
 
-print (b.get_reading(1))
-
-"""
-
-port = 5007
-try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('140.134.26.200', port))
-    s.send('reading')
-    response = s.recv(2048)
-    s.send('1')
-    data = s.recv(8192)
-    reading_data = data.split(';;')
-    if reading_data[len(reading_data) - 1] == '':
-        del reading_data[len(reading_data) - 1]
-
-    print (reading_data)
-
-
-finally:
-    try:
-        s.close() # activate output of the box
-    except:
-        pass
-
+s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.connect(('140.134.26.200', 5007))
+print s.recv(SIZE)
+s.send('d0342273;d0342273.mp3')
+print s.recv(SIZE)
+s.send('begin to send')
+print 'sending, please wait for a second ...'
+with open('./ip.mp3', 'rb') as f:
+    for data in f:
+        s.send(data)
+print 'sended !'
+s.close()
+print 'connection closed'
 

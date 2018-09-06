@@ -9,32 +9,42 @@ from socket import SOCK_STREAM, socket, AF_INET
 SIZE = 1024
 
 
-def check_file():
-    list = os.listdir('.')
+def check_file(id):
+    path = 'record/'
+    list = os.listdir(path)
+    havedir = False
     for iterm in list:
-        if iterm == 'image.jpg':
-            os.remove(iterm)
-            print('remove')
+        if iterm == id:
+            print('have dir' + id)
+            havedir = True
         else:
             pass
+    if not havedir:
+        os.mkdir(path + id, 0755)
+        print('make dir ' + id)
 
 
 def tcp_link(sock, addr):
     print("Accept new connection from %s : %s..." % addr)
     sock.send(b'Welcome from server!')
     print("receiving, please wait for a second ...")
+    id_filename = sock.recv(SIZE).split(';')
+    id = id_filename[0]
+    filename = id_filename[1]
+    path = 'record/' + id + '/' + filename
+    sock.send('id get!')
     while True:
         data = sock.recv(SIZE)
         if not data:
             print('reach the end of file')
             break
         elif data == 'begin to send':
-            print('create file')
-            check_file()
-            with open('./image.jpg', 'wb') as f:
+            print('create file ' + filename)
+            check_file(id)
+            with open(path, 'wb') as f:
                 pass
         else:
-            with open('./image.jpg', 'ab') as f:
+            with open(path, 'ab') as f:
                 f.write(data)
     sock.close()
     print('receive finished')
