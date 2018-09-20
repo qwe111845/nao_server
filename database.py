@@ -137,6 +137,36 @@ class MysqlClass:
         for res in results:
             reading += res[0] + ";;"
 
+        sql = "use student;"
+        self.cursor.execute(sql)
         return reading
+
+    def get_conversation(self, unit):
+
+        sql = "use network;"
+        self.cursor.execute(sql)
+
+        sql = "SELECT `order`, `character`, `content` FROM conversation WHERE unit = " + str(unit) + ";"
+        self.cursor.execute(sql)
+
+        character = []
+        order = []
+        content = []
+        conversation = {'character': [], 'order': [], 'content': []}
+        results = self.cursor.fetchall()
+        for res in results:
+            character.append(res[0])
+            order.append(res[1])
+            content.append(res[2])
+        conversation['character'] = character
+        conversation['order'] = order
+        conversation['content'] = content
+
+
+
+        sql = "use student;"
+        self.cursor.execute(sql)
+
+        return conversation
 
 

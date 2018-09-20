@@ -94,6 +94,11 @@ class MultiThread(object):
                         reading_data = self.db.get_reading(reading_unit).encode('utf-8')
                         client.sendall(reading_data)
                         link = False
+                    elif data == 'conversation':
+                        client.send('Which unit do you want to choose?')
+                        conversation_unit = client.recv(size)
+                        conversation_character = self.db.get_character(conversation_unit)
+                        client.send(conversation_character)
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
                         client.sendall(data.decode('utf-8'))
