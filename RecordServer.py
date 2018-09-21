@@ -15,20 +15,18 @@ def checkExsit(id, filepath):
     havedir = False
     for iterm in list:
         if iterm == id:
-            print('have dir' + id)
             havedir = True
         else:
             pass
     if not havedir:
         os.mkdir(path + id, 0755)
-        print('make dir ' + id)
+        print('Dir not found! make new dir ' + id)
     with open(filepath, 'wb') as f:
         pass
 
-
 def recvImage(sock, filepath):
     while True:
-        data = sock.recv(SIZE)
+        data = sock.recv(512)
         if not data:
             break
         else:
@@ -37,21 +35,30 @@ def recvImage(sock, filepath):
     print 'data received'
 
 
-def saveImage(sock, id, path):
-    print 'Begin to save image ...'
+def saveImage(sock, id, filename, path):
+    print 'Begin to save ' + filename + ' ...'
     checkExsit(id, path)
     t = threading.Thread(target=recvImage, args=(sock, path))
     t.setDaemon(True)
     t.start()
     t.join()
-    print 'Finished saving image ...'
+    print 'Finished saving ' + filename + ' ...'
 
-def merge_file(id, path):
-    clip1 = AudioFileClip('record/' + id + '/' + id + '-record.wav')
-    clip2 = VideoFileClip('record/' + id + '/' + id + '-video.avi')
+def merge_file(sock, id, filename, path):
+    try:
+        print 'merge file ' + filename
+        clip1 = AudioFileClip('record/' + id + '/' + id + '-record.wav')
+        clip2 = VideoFileClip('record/' + id + '/' + id + '-video.avi')
 
-    new_video = clip2.set_audio(clip1)
-    new_video.write_videofile(path)
+        new_video = clip2.set_audio(clip1)
+        new_video.write_videofile(path)
+
+        sock.send('merge success')
+        print 'merge succes!'
+    except Exception as e:
+        sock.send('merge error')
+        print(e)
+
 
 def tcplink(sock, addr):
     print("Accept new connection from %s : %s..." % addr)
@@ -71,13 +78,11 @@ def tcplink(sock, addr):
             recv = None
         elif recv == 'f':
             print 'file command'
-            saveImage(sock, id, path)
+            saveImage(sock, id, filename, path)
             recv = None
         elif recv == 'merge':
-            print 'merge file ' + filename
-            merge_file(id, path)
-            print 'merge succes!'
-
+            merge_file(sock, id, filename, path)
+            recv = None
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.bind(('140.134.26.200', 5007))
