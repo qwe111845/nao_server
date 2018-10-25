@@ -97,7 +97,7 @@ class MultiThread(object):
                     elif data == 'conversation':
                         client.send('Which unit do you want to choose?')
                         conversation_unit = client.recv(size)
-                        conversation_character = self.db.get_character(conversation_unit)
+                        conversation_character = self.db.get_conversation(conversation_unit).encode('utf-8')
                         client.send(conversation_character)
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
@@ -107,6 +107,6 @@ class MultiThread(object):
             except TypeError:
                 client.close()
                 return False
-
+        client.close()
 
 MultiThread('140.134.26.200', 5007).listen()

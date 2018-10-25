@@ -1,15 +1,45 @@
 # -*- coding: UTF-8 -*-
 # !/usr/bin/env python
 import socket
-import datetime as d
-from moviepy.video.io.ffmpeg_reader import FFMPEG_VideoReader
-from moviepy.editor import *
-#FFMPEG_VideoReader("record/d0342273/d0342273-record.mp3", print_infos=True)
+import json
 
-clip1 = AudioFileClip("record/d0342273/d0342273-record.wav")
-clip2 = VideoFileClip("record/d0342273/d0342273-video.avi")
-new_video = clip2.set_audio(clip1)
-new_video.write_videofile("record/d0342273/d0342273.mp4")
+utt = 'apple#banana#cherry#orange'
+print(utt.split('# ;'))
+port = 5007
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(('140.134.26.200', port))
+    s.send('conversation')
+    response = s.recv(2048)
+    print (response)
+    s.send(str(1))
+    conversation_data = s.recv(1024)
+    print (conversation_data)
+    conversation_dic = json.loads(conversation_data)
+
+    characters = ''
+    choose_sentence = 'The characters that can be selected are '
+    characters_list = set(conversation_dic['characters'])
+    for i in characters_list:
+            characters += str(i) + ';'
+            choose_sentence += str(i) + ' '
+    characters = characters[:-1]
+    choose_sentence = choose_sentence[:-1]
+    print(characters)
+    print(choose_sentence)
+    characters = ''
+    for i in conversation_dic['characters']:
+        characters += str(i) + ';'
+
+    characters = characters[:-1]
+
+
+finally:
+    try:
+        s.close()
+    except:
+        pass
+
 """
 SIZE = 1024
 

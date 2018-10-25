@@ -39,7 +39,7 @@ class MysqlClass:
         return classwork[0]
 
     def get_bulletin(self):
-        self.cursor.execute("select content from bulletin_board where " +
+        self.cursor.execute("select content from bulletin_board where ",
                             "bulletin_id = (select max(bulletin_id) from bulletin_board);")
         bulletin = self.cursor.fetchone()
         return bulletin[0]
@@ -56,7 +56,7 @@ class MysqlClass:
     def get_course_name(self, course):
         course_data = course.split(',')
 
-        sql = "SELECT course_name FROM course_information WHERE course_teacher = '%s' "\
+        sql = "SELECT course_name FROM course_information WHERE course_teacher = '%s' " \
               "and course_dayofweek = %s and course_starthour <= %s and course_endhour >= %s " \
               % (course_data[0], course_data[1], course_data[2], course_data[2])
 
@@ -76,7 +76,7 @@ class MysqlClass:
             course_id = str(self.get_course_id(course))
 
             sql = "SELECT student_id,student_name FROM student_data ,practice_courses as p " + \
-                  "WHERE student_id = p.stu_id and course_id = " + course_id + ";"
+                  "WHERE student_id = p.stu_id and course_id = ", course_id, ";"
 
             self.cursor.execute(sql)
 
@@ -106,7 +106,7 @@ class MysqlClass:
 
         sql_sentence = sql_sentence[:-1]
         sql_sentence = "INSERT INTO roll_call(stu_id, stu_name, course_id , status, datetime) VALUES " \
-                       + sql_sentence.decode('utf-8') + ";"
+                        , sql_sentence.decode('utf-8'), ";"
         try:
             self.cursor.execute(sql_sentence)
             self.db.commit()
@@ -118,7 +118,7 @@ class MysqlClass:
     def get_course_id(self, course):
 
         sql = "SELECT course_id FROM course_information " + \
-              "WHERE course_name = \"" + course + "\";"
+              "WHERE course_name = \"", course, "\";"
 
         self.cursor.execute(sql)
         results = self.cursor.fetchone()
@@ -129,7 +129,7 @@ class MysqlClass:
         sql = "use network;"
         self.cursor.execute(sql)
 
-        sql = "SELECT content FROM reading WHERE unit = " + str(unit) + ";"
+        sql = "SELECT content FROM reading WHERE unit = ", str(unit), ";"
         self.cursor.execute(sql)
 
         reading = ''
@@ -142,31 +142,27 @@ class MysqlClass:
         return reading
 
     def get_conversation(self, unit):
-
+        import json
         sql = "use network;"
         self.cursor.execute(sql)
 
-        sql = "SELECT `order`, `character`, `content` FROM conversation WHERE unit = " + str(unit) + ";"
+        sql = "SELECT `order`, `character`, `content` FROM conversation WHERE unit = {};".format(str(unit))
         self.cursor.execute(sql)
 
         character = []
         order = []
         content = []
-        conversation = {'character': [], 'order': [], 'content': []}
+        conversation = {'order': [], 'characters': [], 'content': []}
         results = self.cursor.fetchall()
         for res in results:
-            character.append(res[0])
-            order.append(res[1])
+            order.append(res[0])
+            character.append(res[1])
             content.append(res[2])
-        conversation['character'] = character
         conversation['order'] = order
+        conversation['characters'] = character
         conversation['content'] = content
-
-
 
         sql = "use student;"
         self.cursor.execute(sql)
 
-        return conversation
-
-
+        return json.dumps(conversation)
