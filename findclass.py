@@ -2,43 +2,13 @@
 # !/usr/bin/env python
 import socket
 import json
-
-utt = 'apple#banana#cherry#orange'
-print(utt.split('# ;'))
+import database
 port = 5007
-try:
-    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    s.connect(('140.134.26.200', port))
-    s.send('conversation')
-    response = s.recv(2048)
-    print (response)
-    s.send(str(1))
-    conversation_data = s.recv(1024)
-    print (conversation_data)
-    conversation_dic = json.loads(conversation_data)
 
-    characters = ''
-    choose_sentence = 'The characters that can be selected are '
-    characters_list = set(conversation_dic['characters'])
-    for i in characters_list:
-            characters += str(i) + ';'
-            choose_sentence += str(i) + ' '
-    characters = characters[:-1]
-    choose_sentence = choose_sentence[:-1]
-    print(characters)
-    print(choose_sentence)
-    characters = ''
-    for i in conversation_dic['characters']:
-        characters += str(i) + ';'
-
-    characters = characters[:-1]
+db = database.MysqlClass()
+reading_data = db.get_reading('1').encode('utf-8')
 
 
-finally:
-    try:
-        s.close()
-    except:
-        pass
 
 """
 SIZE = 1024

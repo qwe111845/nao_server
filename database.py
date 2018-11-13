@@ -57,8 +57,8 @@ class MysqlClass:
         course_data = course.split(',')
 
         sql = "SELECT course_name FROM course_information WHERE course_teacher = '%s' " \
-              "and course_dayofweek = %s and course_starthour <= %s and course_endhour >= %s " \
-              % (course_data[0], course_data[1], course_data[2], course_data[2])
+              "and course_dayofweek = %s and course_starthour <= %s and course_endhour >= %s" \
+              .format(course_data[0], course_data[1], course_data[2], course_data[2])
 
         self.cursor.execute(sql)
         results = self.cursor.fetchone()
@@ -76,7 +76,7 @@ class MysqlClass:
             course_id = str(self.get_course_id(course))
 
             sql = "SELECT student_id,student_name FROM student_data ,practice_courses as p " + \
-                  "WHERE student_id = p.stu_id and course_id = ", course_id, ";"
+                  "WHERE student_id = p.stu_id and course_id = {};".format(course_id)
 
             self.cursor.execute(sql)
 
@@ -101,12 +101,11 @@ class MysqlClass:
         course_id = self.get_course_id(course)
         for rollcall in attends:
             rollcall = rollcall.split()
-            sql_sentence += "('%s','%s','%s','%s', %s)," % \
-                            (rollcall[0], rollcall[1], course_id, rollcall[2], date)
+            sql_sentence += "('{}','{}','{}','{}', {}),".format(rollcall[0], rollcall[1], course_id, rollcall[2], date)
 
         sql_sentence = sql_sentence[:-1]
-        sql_sentence = "INSERT INTO roll_call(stu_id, stu_name, course_id , status, datetime) VALUES " \
-                        , sql_sentence.decode('utf-8'), ";"
+        sql_sentence = "INSERT INTO roll_call(stu_id, stu_name, course_id , status, datetime) VALUES {};" \
+                       .format(sql_sentence)
         try:
             self.cursor.execute(sql_sentence)
             self.db.commit()
@@ -118,7 +117,7 @@ class MysqlClass:
     def get_course_id(self, course):
 
         sql = "SELECT course_id FROM course_information " + \
-              "WHERE course_name = \"", course, "\";"
+              "WHERE course_name = \"{}\";".format(course)
 
         self.cursor.execute(sql)
         results = self.cursor.fetchone()
@@ -128,12 +127,13 @@ class MysqlClass:
     def get_reading(self, unit):
         sql = "use network;"
         self.cursor.execute(sql)
-
-        sql = "SELECT content FROM reading WHERE unit = ", str(unit), ";"
+        print (1)
+        sql = "SELECT content FROM reading WHERE unit = {};".format(str(unit))
         self.cursor.execute(sql)
-
+        print (2)
         reading = ''
         results = self.cursor.fetchall()
+        print (results)
         for res in results:
             reading += res[0] + ";;"
 

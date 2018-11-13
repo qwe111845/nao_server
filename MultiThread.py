@@ -99,6 +99,11 @@ class MultiThread(object):
                         conversation_unit = client.recv(size)
                         conversation_character = self.db.get_conversation(conversation_unit).encode('utf-8')
                         client.send(conversation_character)
+                    elif data == 'log':
+                        client.send('please send log')
+                        user_log = client.recv(8192)
+                        print(user_log)
+
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
                         client.sendall(data.decode('utf-8'))
