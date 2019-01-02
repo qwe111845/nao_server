@@ -27,7 +27,7 @@ def synchronized(wrapped):
     return _wrap
 
 
-class MysqlClass:
+class MysqlClass(object):
     def __init__(self):
         self.db = MySQLdb.connect("127.0.0.1", "user", "1234", "student", charset='utf8')
         self.cursor = self.db.cursor()

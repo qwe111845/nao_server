@@ -3,13 +3,11 @@
 import socket
 import json
 import database
-port = 5007
 
-db = database.MysqlClass()
-reading_data = db.get_reading('1').encode('utf-8')
+a = "iiss/"
 
-
-
+a = a.replace('/', r'\\')
+print a
 """
 SIZE = 1024
 
