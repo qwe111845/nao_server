@@ -18,6 +18,7 @@ def ppt2png(pptFileName, ppt_path, save_path):
     ppt.Close()
     powerpoint.Quit()
 
+print(len(prs.slides))
 for slide in prs.slides:
     for shape in slide.shapes:
         text = ''
