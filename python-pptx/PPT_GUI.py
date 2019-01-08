@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-# from tkinter import ttk
 import Tkinter as tk
 import tkMessageBox as tm
 import database
@@ -40,26 +39,35 @@ class ServerGUI(tk.Frame):
         self.ip_text.place(relx=0.85, relheight=0.05, relwidth=0.15)
 
         link_button = tk.Button(self, text='Link robot', command=self.link_nao)
-        link_button.place(relx=0.85, rely=0.05, relwidth=0.15)
+        link_button.place(relx=0.85, rely=0.05, relheight=0.03, relwidth=0.15)
+
+        self.link_label = tk.Label(self, textvariable='尚未連線', bg='LightCyan')
+        self.link_label.place(relx=0.85, rely=0.08, relheight=0.05, relwidth=0.15)
 
         ppt_selection_button = tk.Button(self, text="選擇文件", command=self.set_data)
-        ppt_selection_button.place(relx=0.85, rely=0.15, relwidth=0.15)
+        ppt_selection_button.place(relx=0.85, rely=0.13, relheight=0.05, relwidth=0.15)
 
         start_button = tk.Button(self, text="Start", command=self.ppt_set)
-        start_button.place(relx=0.85, rely=0.2, relwidth=0.15)
+        start_button.place(relx=0.85, rely=0.18, relheight=0.04, relwidth=0.15)
 
         previous_button = tk.Button(self, text="Previous slide", command=self.previous_ppt)
-        previous_button.place(relx=0.85, rely=0.25, relwidth=0.15)
+        previous_button.place(relx=0.85, rely=0.22, relheight=0.04, relwidth=0.075)
 
         next_button = tk.Button(self, text="Next slide", command=self.next_ppt)
-        next_button.place(relx=0.85, rely=0.3, relwidth=0.15)
+        next_button.place(relx=0.925, rely=0.22, relheight=0.04, relwidth=0.075)
+
+        speak_button = tk.Button(self, text="Speak", command=self.ppt_set)
+        speak_button.place(relx=0.85, rely=0.18, relheight=0.04, relwidth=0.15)
+
+        quit_button = tk.Button(self, text="Quit PPT Mode", command=self.ppt_set)
+        quit_button.place(relx=0.85, rely=0.18, relheight=0.04, relwidth=0.15)
 
         self.ppt_label = tk.Label(self, textvariable=self.var, bg='white')
         self.ppt_label.place(relheight=1, relwidth=0.85)
 
         self.text_label = tk.Label(self, textvariable=self.var, bg='gray',
                               wraplength=150, anchor='nw', justify='left')
-        self.text_label.place(relx=0.85, rely=0.35, relheight=0.5, relwidth=0.15)
+        self.text_label.place(relx=0.85, rely=0.4, relheight=0.6, relwidth=0.15)
 
     def text_set(self, text_list):
         set_text = ''
@@ -68,30 +76,38 @@ class ServerGUI(tk.Frame):
 
         self.var.set(set_text)
 
-        if int(self.text_label.winfo_width()/13) >= 16:
-            fontsize = 16
+        if int(self.text_label.winfo_width()/13) >= 14:
+            fontsize = 14
         else:
             fontsize = 10
-        self.text_label.config(wraplength=self.text_label.winfo_width()-5)
+        self.text_label.config(font=("Helvetica", fontsize, 'bold'), wraplength=self.text_label.winfo_width()-5)
 
     def set_data(self):
         default_dir = r"C:\Users\lin\Desktop"
         self.ppt_file = tkFileDialog.askopenfilename(title="選擇文件",
                                                      initialdir=(os.path.expanduser(default_dir)))
 
-        self.save_dir = tkFileDialog.askdirectory()
+        self.save_dir = tkFileDialog.askdirectory(title="儲存的資料夾")
 
-        if len(self.ppt_file) > 0:
-            fstart = self.ppt_file.rindex('/')
-            self.fname = self.ppt_file[fstart + 1:-5]
+        if len(self.ppt_file) <= 0 or len(self.save_dir) <= 0:
+            tm.showinfo(title='wrong', message='請選擇文件及儲存的資料夾')
+            pass
+        else:
+            if len(self.ppt_file) > 0:
+                fstart = self.ppt_file.rindex('/')
+                self.fname = self.ppt_file[fstart + 1:-5]
 
-        self.ppt_file = self.ppt_file.replace('/', r'\\')
-        self.save_dir = self.save_dir.replace('/', r'\\')
+            self.ppt_file = self.ppt_file.replace('/', r'\\')
+            self.save_dir = self.save_dir.replace('/', r'\\')
 
-        self.ppt2png(self.fname, self.ppt_file, self.save_dir)
+            self.ppt2png(self.fname, self.ppt_file, self.save_dir)
 
     def link_nao(self):
-        print self.ip_text.get("1.0", "end-1c")
+        ip = self.ip_text.get("1.0", "end-1c")
+        if len(ip) <= 0:
+            tm.showinfo(title='wrong', message='請輸入ip位址')
+        else:
+
 
     def img_set(self):
         w_box = self.ppt_label.winfo_width()

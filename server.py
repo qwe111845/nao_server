@@ -1,62 +1,32 @@
-# !/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python
+# -*- coding: UTF-8 -*-
 
-
+import socket
 import threading
-import os
-from socket import SOCK_STREAM, socket, AF_INET
 
-SIZE = 1024
+bind_ip = "0.0.0.0"
+bind_port = 9999
 
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-def check_file(id):
-    path = 'record/'
-    list = os.listdir(path)
-    havedir = False
-    for iterm in list:
-        if iterm == id:
-            print('have dir' + id)
-            havedir = True
-        else:
-            pass
-    if not havedir:
-        os.mkdir(path + id, 0755)
-        print('make dir ' + id)
+server.bind((bind_ip, bind_port))
+
+server.listen(5)
+
+print "[*] Listening on %s:%d" % (bind_ip, bind_port)
 
 
-def tcp_link(sock, addr):
-    print("Accept new connection from %s : %s..." % addr)
-    sock.send(b'Welcome from server!')
-    print("receiving, please wait for a second ...")
-    id_filename = sock.recv(SIZE).split(';')
-    id = id_filename[0]
-    filename = id_filename[1]
-    path = 'record/' + id + '/' + filename
-    sock.send('id get!')
-    while True:
-        data = sock.recv(SIZE)
-        if not data:
-            print('reach the end of file')
-            break
-        elif data == 'begin to send':
-            print('create file ' + filename)
-            check_file(id)
-            with open(path, 'wb') as f:
-                pass
-        else:
-            with open(path, 'ab') as f:
-                f.write(data)
-    sock.close()
-    print('receive finished')
-    print('Connection from %s:%s closed.' % addr)
+def handle_client(client_socket):
+    request = client_socket.recv(1024)
+    print "[*] Received: %s" % request
 
+    client_socket.send("ACK!")
+    client_socket.close()
 
-s = socket(AF_INET, SOCK_STREAM)
-s.bind(('140.134.26.200', 5007))
-s.listen(1)
-print('Waiting for connection...')
 
 while True:
-    sock, addr = s.accept()
-    t = threading.Thread(target=tcp_link, args=(sock, addr))
-    t.start()
+    client, addr = server.accept()
+    print "[*] Acepted connection from: %s:%d" % (addr[0], addr[1])
+
+    client_handler = threading.Thread(target=handle_client, args=(client,))
+    client_handler.start()

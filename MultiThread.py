@@ -17,6 +17,7 @@ class MultiThread(object):
         self.db = database.MysqlClass()
         self.course = ''
         self.results = ''
+        self.rooms = []
 
         # print 'Server waiting , port: ', self.port
 
@@ -27,6 +28,9 @@ class MultiThread(object):
             client, address = self.sock.accept()
             client.settimeout(300)
             threading.Thread(args=(client, address), target=self.listen_to_client).start()
+
+    def chat_room(self, robot, teacher):
+
 
     def listen_to_client(self, client, address):
 
@@ -103,10 +107,20 @@ class MultiThread(object):
                         client.send('please send log')
                         user_log = client.recv(8192)
                         print(user_log)
+                    elif data == 'chat room':
+                        self.rooms.append(client)
+                        client.send('enter room')
+                    elif data == 'enter room':
+                        if len(self.rooms) <= 0:
+                            client.send('no robot in room')
+                        else:
+                            self.chat_room(self.rooms[0], client)
+                            client.send('enter room')
 
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
                         client.sendall(data.decode('utf-8'))
+
                 else:
                     time.sleep(1)
             except TypeError:

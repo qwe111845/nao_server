@@ -4,10 +4,33 @@ import socket
 import json
 import database
 
-a = "iiss/"
+port = 5007
+try:
+    s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    s.connect(('140.134.26.200', port))
+    s.send('chat room')
+    msg = s.recv(2048)
 
-a = a.replace('/', r'\\')
-print a
+    link = True
+    while link != False:
+        data = s.recv(2048)
+
+        if data:
+            msgs = data.split(':::')
+            for msg in msgs:
+                if msg == 'English':
+                    time.sleep(2)
+                    self.say("change English")
+                elif msg == 'English':
+                    time.sleep(2)
+                    self.say("變為中文")
+                elif msg == 'Quit ppt mode':
+                    link = False
+                else:
+                time.sleep(2)
+            data = None
+        else:
+            time.sleep(2)
 """
 SIZE = 1024
 
