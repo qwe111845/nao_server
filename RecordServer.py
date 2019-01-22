@@ -62,7 +62,7 @@ def merge_file(sock, id, filename, path):
 
 def tcplink(sock, addr):
     print("Accept new connection from %s : %s..." % addr)
-    sock.send(b'Welcome from server!')
+    sock.send('Welcome from server!')
     print("receiving, please wait for a second ...")
     id_filename = sock.recv(SIZE).split(';')
     id = id_filename[0]

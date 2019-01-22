@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-# import pymysql
+#import pymysql
 import threading
 import MySQLdb
 import functools
@@ -10,7 +10,7 @@ import time
 
 def synchronized(wrapped):
     lock = threading.Lock()
-    print lock, id(lock)
+    print(lock, id(lock))
 
     @functools.wraps(wrapped)
     def _wrap(*args, **kwargs):
@@ -39,7 +39,7 @@ class MysqlClass(object):
         return classwork[0]
 
     def get_bulletin(self):
-        self.cursor.execute("select content from bulletin_board where ",
+        self.cursor.execute("select content from bulletin_board where " + \
                             "bulletin_id = (select max(bulletin_id) from bulletin_board);")
         bulletin = self.cursor.fetchone()
         return bulletin[0]
@@ -56,9 +56,9 @@ class MysqlClass(object):
     def get_course_name(self, course):
         course_data = course.split(',')
 
-        sql = "SELECT course_name FROM course_information WHERE course_teacher = '%s' " \
-              "and course_dayofweek = %s and course_starthour <= %s and course_endhour >= %s" \
-              .format(course_data[0], course_data[1], course_data[2], course_data[2])
+        sql = "SELECT course_name FROM course_information WHERE course_teacher = '{}' " \
+              "and course_dayofweek = {} and course_starthour <= {} and course_endhour >= {}" \
+            .format(course_data[0], course_data[1], course_data[2], course_data[2])
 
         self.cursor.execute(sql)
         results = self.cursor.fetchone()
@@ -85,9 +85,9 @@ class MysqlClass(object):
                 students += i[0] + ' ' + i[1] + ';'
 
         except NameError:
-            print ("連線失敗", self.db.rollback())
+            print("連線失敗", self.db.rollback())
         except TypeError:
-            print ('型態錯誤')
+            print('型態錯誤')
 
         return students
 
@@ -105,7 +105,7 @@ class MysqlClass(object):
 
         sql_sentence = sql_sentence[:-1]
         sql_sentence = "INSERT INTO roll_call(stu_id, stu_name, course_id , status, datetime) VALUES {};" \
-                       .format(sql_sentence)
+            .format(sql_sentence)
         try:
             self.cursor.execute(sql_sentence)
             self.db.commit()
@@ -127,13 +127,13 @@ class MysqlClass(object):
     def get_reading(self, unit):
         sql = "use network;"
         self.cursor.execute(sql)
-        print (1)
+        print(1)
         sql = "SELECT content FROM reading WHERE unit = {};".format(str(unit))
         self.cursor.execute(sql)
-        print (2)
+        print(2)
         reading = ''
         results = self.cursor.fetchall()
-        print (results)
+        print(results)
         for res in results:
             reading += res[0] + ";;"
 

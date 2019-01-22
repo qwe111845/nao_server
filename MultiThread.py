@@ -1,9 +1,14 @@
 # -*- coding: utf-8 -*-
 
+import os
 import socket
-import database
 import threading
 import time
+
+from moviepy.editor import AudioFileClip
+from moviepy.editor import VideoFileClip
+
+import database
 
 
 class MultiThread(object):
@@ -17,9 +22,7 @@ class MultiThread(object):
         self.db = database.MysqlClass()
         self.course = ''
         self.results = ''
-        self.rooms = []
-
-        # print 'Server waiting , port: ', self.port
+        self.robot_port = 5400
 
     def listen(self):
 
@@ -29,8 +32,68 @@ class MultiThread(object):
             client.settimeout(300)
             threading.Thread(args=(client, address), target=self.listen_to_client).start()
 
-    def chat_room(self, robot, teacher):
+    def check_exsit(self, id, filepath):
+        path = 'record/'
+        path_list = os.listdir(path)
+        have_dir = False
+        for iterm in path_list:
+            if iterm == id:
+                have_dir = True
+            else:
+                pass
+        if not have_dir:
+            os.mkdir(path, 0o755)
+            print('Dir not found! make new dir ' + id)
+        with open(filepath, 'wb') as f:
+            pass
 
+    def recvImage(self, client, filepath):
+        while True:
+            data = client.recv(512)
+            if not data:
+                break
+            else:
+                with open(filepath, 'ab') as f:
+                    f.write(data)
+        print('data received')
+
+    def saveImage(self, client):
+        client.send('Welcome from server!')
+        print("receiving, please wait for a second ...")
+        id_filename = client.recv(1024).split(';')
+        id = id_filename[0]
+        filename = id_filename[1]
+        path = 'record/' + id + '/' + filename
+        client.send('id get!')
+        print('Begin to save ' + filename + ' ...')
+        self.check_exsit(id, path)
+        t = threading.Thread(target=self.recvImage, args=(client, path))
+        t.setDaemon(True)
+        t.start()
+        t.join()
+        print('Finished saving ' + filename + ' ...')
+
+    def merge_file(self, client):
+        try:
+            client.send('Welcome from server!')
+            print("receiving, please wait for a second ...")
+            id_filename = client.recv(1024).split(';')
+            id = id_filename[0]
+            filename = id_filename[1]
+            path = 'record/' + id + '/' + filename
+            client.send('id get!')
+            print('merge file ' + filename)
+            clip1 = AudioFileClip('record/' + id + '/' + id + '-record.wav')
+            clip2 = VideoFileClip('record/' + id + '/' + id + '-video.avi')
+
+            new_video = clip2.set_audio(clip1)
+            new_video.write_videofile(path)
+
+            client.send('merge success')
+            print('merge succes!')
+        except Exception as e:
+            client.send('merge error')
+            print(e)
 
     def listen_to_client(self, client, address):
 
@@ -44,7 +107,7 @@ class MultiThread(object):
                     print(data.decode('utf-8'))
 
                     if data == '點名':
-                        client.sendall('接收點名')
+                        client.send('接收點名')
                         roll_call_course = client.recv(size)
 
                         self.course = roll_call_course.strip()
@@ -68,9 +131,9 @@ class MultiThread(object):
                         print('傳送 接收成功')
 
                         roll_call_data = client.recv(size)
-                        ok = self.db.roll_call(roll_call_data, self.course)
+                        record_success = self.db.roll_call(roll_call_data, self.course)
 
-                        if ok:
+                        if record_success:
                             print(roll_call_data, '出席紀錄成功')
                             link = False
                     elif data == '課堂作業':
@@ -89,8 +152,10 @@ class MultiThread(object):
                     elif data == '找課程':
                         client.send('ok')
                         course_name = client.recv(size)
-                        response = self.db.get_course_name(course_name).encode('utf-8')
-                        print (response)
+                        if len(self.db.get_course_name(course_name)) > 0:
+                            response = self.db.get_course_name(course_name).encode('utf-8')
+                        else:
+                            response = '沒有課程'
                         client.send(response)
                     elif data == 'reading':
                         client.send('Which unit do you want to choose?')
@@ -107,16 +172,22 @@ class MultiThread(object):
                         client.send('please send log')
                         user_log = client.recv(8192)
                         print(user_log)
-                    elif data == 'chat room':
-                        self.rooms.append(client)
-                        client.send('enter room')
-                    elif data == 'enter room':
-                        if len(self.rooms) <= 0:
-                            client.send('no robot in room')
-                        else:
-                            self.chat_room(self.rooms[0], client)
-                            client.send('enter room')
-
+                    elif data == 'get robot port':
+                        print(self.robot_port)
+                        client.send(str(self.robot_port))
+                        link = False
+                    elif data == 'get robot port(G)':
+                        client.send(str(self.robot_port))
+                        self.robot_port += 1
+                        if self.robot_port >= 5500:
+                            self.robot_port = 5400
+                        link = False
+                    elif data == 'file':
+                        self.saveImage(client)
+                        link = False
+                    elif data == 'merge':
+                        self.merge_file(client)
+                        link = False
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
                         client.sendall(data.decode('utf-8'))
@@ -126,6 +197,8 @@ class MultiThread(object):
             except TypeError:
                 client.close()
                 return False
+
         client.close()
+
 
 MultiThread('140.134.26.200', 5007).listen()
