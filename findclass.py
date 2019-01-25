@@ -5,7 +5,20 @@ import database as d
 import json
 import database
 import threading
+import jiwer as wer
 
+
+
+
+data = {"character_say": ["Well, I'm from Brighton, England. I like to surf, and\nI'm learning to fly small airplanes.\
+I don't like to bake cupcakes."], "character": ["Nick"], "student_say": ["well I'm from flight Angela I like to Surf\
+ and I'm learning to fly small airplanes I don't like to bake cupcakes"], "student": ["d0342273"]}
+
+stu = d.MysqlClass()
+stu.student_conversation(json.dumps(data))
+print(json.dumps(data))
+print(type(json.dumps(data)))
+"""
 m = d.MysqlClass()
 
 print(m.get_bulletin())
@@ -35,7 +48,7 @@ while True:
 
 
 
-"""
+
 import speech_recognition as sr
 
 # obtain path to "english.wav" in the same folder as this script

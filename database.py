@@ -1,7 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 
-#import pymysql
+# import pymysql
 import threading
 import MySQLdb
 import functools
@@ -69,7 +69,7 @@ class MysqlClass(object):
 
             return '目前沒有課程'
 
-    def link_mysql(self, course):
+    def get_student_data(self, course):
         students = ''
         try:
             print('連接mysql')
@@ -166,3 +166,30 @@ class MysqlClass(object):
         self.cursor.execute(sql)
 
         return json.dumps(conversation)
+
+    def student_conversation(self, student_conversation_log):
+        import json
+        from jiwer import wer
+        datetime = 'NOW()'
+        conversation = json.loads(student_conversation_log)
+        sql_sentence = ''
+        sid = str(conversation['student'][0])
+        character = str(conversation['character'][0])
+        print character
+        for i in range(len(conversation['student'])):
+            stu_say = conversation['student_say'][i].replace("'", r"\'")
+            chr_say = conversation['character_say'][i].replace("'", r"\'")
+            wer = wer(str(chr_say), str(stu_say))
+            sql_sentence += "('{}', '{}', '{}', '{}', {}, {})," \
+                .format(sid, character, stu_say, chr_say, wer, datetime)
+
+        sql_sentence = "INSERT INTO conversation_record(stu_id, character_name, stu_say, character_say , " + \
+                       "word_error_rate, datetime) VALUES {};".format(sql_sentence[:-1])
+        print(sql_sentence)
+        try:
+            self.cursor.execute(sql_sentence)
+            self.db.commit()
+        except NameError:
+            self.db.rollback()
+
+        return True

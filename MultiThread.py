@@ -111,13 +111,11 @@ class MultiThread(object):
                         roll_call_course = client.recv(size)
 
                         self.course = roll_call_course.strip()
-                        print(self.course)
-
-                        all_students = self.db.link_mysql(self.course)
+                        all_students = self.db.get_student_data(self.course)
 
                         while all_students == '':
                             time.sleep(1)
-                            all_students = self.db.link_mysql(self.course)
+                            all_students = self.db.get_student_data(self.course)
                             print ('重新存取資料')
 
                         stu_names = str(all_students.encode('utf-8'))
@@ -127,9 +125,6 @@ class MultiThread(object):
 
                     elif data == '點名完畢':
                         client.send('接收成功')
-
-                        print('傳送 接收成功')
-
                         roll_call_data = client.recv(size)
                         record_success = self.db.roll_call(roll_call_data, self.course)
 
@@ -171,6 +166,11 @@ class MultiThread(object):
                     elif data == 'log':
                         client.send('please send log')
                         user_log = client.recv(8192)
+                        record_success = self.db.student_conversation(user_log)
+
+                        if record_success:
+                            print('對話紀錄成功')
+                            link = False
                         print(user_log)
                     elif data == 'get robot port':
                         print(self.robot_port)
