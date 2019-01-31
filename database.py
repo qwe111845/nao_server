@@ -1,7 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-
-# import pymysql
+#import pymysql
 import threading
 import MySQLdb
 import functools
@@ -124,6 +123,19 @@ class MysqlClass(object):
 
         return results[0]
 
+    def get_account(self, account):
+
+        sql = "SELECT teacher_id FROM teacher_data " + \
+              "WHERE teacher_id = \"{}\";".format(account)
+
+        self.cursor.execute(sql)
+        results = self.cursor.fetchone()
+
+        if len(results) == 0:
+            return False
+        else:
+            return True
+
     def get_reading(self, unit):
         sql = "use network;"
         self.cursor.execute(sql)
@@ -175,13 +187,13 @@ class MysqlClass(object):
         sql_sentence = ''
         sid = str(conversation['student'][0])
         character = str(conversation['character'][0])
-        print character
+        print(character)
         for i in range(len(conversation['student'])):
             stu_say = conversation['student_say'][i].replace("'", r"\'")
             chr_say = conversation['character_say'][i].replace("'", r"\'")
-            wer = wer(str(chr_say), str(stu_say))
+            word_error_rate = wer(str(chr_say), str(stu_say))
             sql_sentence += "('{}', '{}', '{}', '{}', {}, {})," \
-                .format(sid, character, stu_say, chr_say, wer, datetime)
+                .format(sid, character, stu_say, chr_say, word_error_rate, datetime)
 
         sql_sentence = "INSERT INTO conversation_record(stu_id, character_name, stu_say, character_say , " + \
                        "word_error_rate, datetime) VALUES {};".format(sql_sentence[:-1])

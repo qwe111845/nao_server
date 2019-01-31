@@ -1,24 +1,69 @@
 # -*- coding: UTF-8 -*-
 import socket
+import wave
+
+from moviepy.audio.io.AudioFileClip import AudioFileClip
+from moviepy.video.io.VideoFileClip import VideoFileClip
+
 import database as d
-
 import json
-import database
 import threading
-import jiwer as wer
+import matplotlib.pyplot as plt
+import numpy as np
 
 
 
+clip1 = AudioFileClip('record/d0342273/' + 'd0342273 19-01-31 21\'33-record.wav')
+clip2 = VideoFileClip('record/d0342273/' + 'd0342273 19-01-31 21\'33-video.avi ')
 
-data = {"character_say": ["Well, I'm from Brighton, England. I like to surf, and\nI'm learning to fly small airplanes.\
-I don't like to bake cupcakes."], "character": ["Nick"], "student_say": ["well I'm from flight Angela I like to Surf\
- and I'm learning to fly small airplanes I don't like to bake cupcakes"], "student": ["d0342273"]}
+new_video = clip2.set_audio(clip1)
+new_video.write_videofile('record/d0342273/d0342273 19-01-31 21\'33.mp4')
+"""
+
+filepath = "record/d0342273/d0342273-record.wav"  # 添加路径
+f = wave.open(filepath, 'rb')
+
+params = f.getparams()
+nchannels, sampwidth, framerate, nframes = params[:4]
+strData = f.readframes(nframes)  # 读取音频，字符串格式
+waveData = np.fromstring(strData, dtype=np.int16)
+waveData = waveData * 1.0 / (max(abs(waveData)))  # wave幅值归一化
+waveData = np.reshape(waveData, [nframes, nchannels])
+
+f.close()
+# plot the wave
+time = np.arange(0, nframes) * (1.0 / framerate)
+plt.figure()
+plt.subplot(5, 1, 1)
+plt.plot(time, waveData[:, 0])
+plt.xlabel("Time(s)")
+plt.ylabel("Amplitude")
+plt.title("Ch-1 wavedata")
+plt.grid('on')  # 标尺，on：有，off:无。
+plt.subplot(5, 1, 3)
+plt.plot(time, waveData[:, 1])
+plt.xlabel("Time(s)")
+plt.ylabel("Amplitude")
+plt.title("Ch-2 wavedata")
+plt.grid('on')  # 标尺，on：有，off:无。
+plt.subplot(5, 1, 5)
+plt.plot(time, waveData[:, 1])
+plt.xlabel("Time(s)")
+plt.ylabel("Amplitude")
+plt.title("Ch-3 wavedata")
+plt.grid('on')  # 标尺，on：有，off:无。
+plt.show()
+
+
+data = {'character_say': ["I want to welcome Nick Carpenter to our staff meeting.We're so glad to have you on " + \
+                          "our team, Nick. Let's all introduce ourselves.", 'And what do you like to do in your free time?', 'Thanks, Lucy. What about you. Nick ?'], 'character': ['Rose', 'Rose', 'Rose'], 'student_say': ["I want to welcome Nick comforter to our staff meeting we are so glad to have you on our team make let's all introduce ourselves", 'and hot do you like to do in your free time', 'sex Lucy heart about unique'], 'student': ['m0626957', 'm0626957', 'm0626957']}
 
 stu = d.MysqlClass()
 stu.student_conversation(json.dumps(data))
 print(json.dumps(data))
 print(type(json.dumps(data)))
-"""
+
+
 m = d.MysqlClass()
 
 print(m.get_bulletin())
