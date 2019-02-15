@@ -47,13 +47,13 @@ class MultiThread(object):
         with open(file_path, 'wb') as f:
             pass
 
-    def recv_image(self, client, filepath):
+    def recv_image(self, client, file_path):
         while True:
             data = client.recv(8192)
             if not data:
                 break
             else:
-                with open(filepath, 'ab') as f:
+                with open(file_path, 'ab') as f:
                     f.write(data)
         print('data received')
 
@@ -133,7 +133,7 @@ class MultiThread(object):
                         stu_names = str(all_students.encode('utf-8'))
                         client.send(stu_names)
 
-                        print('傳送' + all_students)
+                        print('傳送' + stu_names)
                         link = False
 
                     elif data == '點名完畢':
@@ -182,6 +182,7 @@ class MultiThread(object):
                         client.send('Which unit do you want to choose?')
                         reading_unit = client.recv(size)
                         reading_data = self.db.get_reading(reading_unit).encode('utf-8')
+                        time.sleep(0.5)
                         client.sendall(reading_data)
                         link = False
 
@@ -189,11 +190,13 @@ class MultiThread(object):
                         client.send('Which unit do you want to choose?')
                         conversation_unit = client.recv(size)
                         conversation_character = self.db.get_conversation(conversation_unit).encode('utf-8')
-                        client.send(conversation_character)
+                        time.sleep(0.5)
+                        client.sendall(conversation_character)
                         link = False
 
                     elif data == 'log':
                         client.send('please send log')
+                        time.sleep(0.5)
                         user_log = client.recv(8192)
                         record_success = self.db.student_conversation(user_log)
 
@@ -209,6 +212,9 @@ class MultiThread(object):
 
                     elif data == 'get robot port(G)':
                         client.send(str(self.robot_port))
+                        link = False
+
+                    elif data == 'add port':
                         self.robot_port += 1
                         if self.robot_port >= 5500:
                             self.robot_port = 5400

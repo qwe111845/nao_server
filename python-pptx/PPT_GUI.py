@@ -2,7 +2,6 @@
 
 import Tkinter as tk
 import tkMessageBox as tm
-import database
 import os
 import tkFileDialog
 from pptx import Presentation
@@ -22,7 +21,6 @@ class PPTGUI(tk.Frame):
     def __init__(self, root=None):
         tk.Frame.__init__(self, root)
         self.root = root
-        self.db = database.MysqlClass()
         self.var = tk.StringVar()
         self.ppt_file = ''
         self.save_dir = ''
@@ -60,10 +58,10 @@ class PPTGUI(tk.Frame):
         ppt_selection_button = tk.Button(self, text="轉換PPT", command=self.set_data)
         ppt_selection_button.place(relx=0.85, rely=0.13, relheight=0.05, relwidth=0.075)
 
-        ppt_selection_button = tk.Button(self, text="選擇PPT資料夾", command=self.set_img_data)
-        ppt_selection_button.place(relx=0.925, rely=0.13, relheight=0.05, relwidth=0.075)
+        ppt_selection1_button = tk.Button(self, text="選擇PPT資料夾", command=self.set_img_data)
+        ppt_selection1_button.place(relx=0.925, rely=0.13, relheight=0.05, relwidth=0.075)
 
-        start_button = tk.Button(self, text="Start", command=self.ppt_set)
+        start_button = tk.Button(self, text="Start", command=self.ppt_start)
         start_button.place(relx=0.85, rely=0.18, relheight=0.04, relwidth=0.15)
 
         previous_button = tk.Button(self, text="Previous slide", command=self.previous_ppt)
@@ -157,13 +155,14 @@ class PPTGUI(tk.Frame):
 
         time.sleep(1)
         ip = self.ip_text.get("1.0", "end-1c")
+        print (ip)
+        print(self.robot_port)
         if len(ip) <= 0:
             tm.showinfo(title='wrong', message='請輸入ip位址')
-        # int(self.robot_port)
         else:
             try:
                 self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-                self.sock.connect((ip, 6666))
+                self.sock.connect((ip, int(self.robot_port)))
                 self.sock.send('Successful connection')
                 self.link.set('已連線')
             except TypeError:
@@ -180,7 +179,7 @@ class PPTGUI(tk.Frame):
         else:
             img_location = self.save_dir + r"\\" + r"\\投影片" + str(self.ppt_number + 1) + r".jpg"
             #self.text_set(self.ppt_text[self.ppt_number])
-
+        print(img_location, type(img_location))
         pil_image = Image.open(img_location)
         pil_image_resized = self.resize(w_box, h_box, pil_image)
 
@@ -188,11 +187,8 @@ class PPTGUI(tk.Frame):
         self.ppt_label.config(image=tk_image)
         self.ppt_label.image = tk_image
 
-    def ppt_set(self):
-        if len(self.save_dir) == 0 or len(self.fname) == 0:
-            tm.showinfo(title='wrong', message='請先選擇儲存的資料夾')
-            pass
-        else:
+    def ppt_start(self):
+
             self.jpg_dir = self.save_dir + r"\\" + self.fname + r"\\"
             self.ppt_number = 0
             self.img_set()
