@@ -16,16 +16,17 @@ class PPTClient:
         self.ip = ip
         self.robot_port = self.get_robot_port()
         self.socket = self.connect(self.ip, self.robot_port)
-        #self.socket = self.connect(self.ip, 5408)
+        #self.socket = self.connect((self.ip, 5408))
         print('連線')
-        self.status = '已連線'
 
     def connect(self, host, port):
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
             sock.connect((host, port))
-        except:
-            pass
+            self.status = '已連線'
+        except socket.error, msg:
+            self.status = '連線失敗'
+            print(msg)
         return sock
 
     def get_robot_port(self):
@@ -39,23 +40,20 @@ class PPTClient:
         return robot_port
 
     def quit_ppt(self):
+        self.status = '關閉連線'
         port = 5007
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect(('140.134.26.200', port))
         s.send('add port')
         time.sleep(1)
         s.close()
-        self.status = '關閉連線'
-        self.link = False
 
     def get_status(self):
         return self.status
 
     def set_command(self, command):
         self.command = command
-        print self.command
-        if self.command == 'Quit ppt mode':
-            self.quit_ppt()
+
         try:
             self.socket.send(self.command)
             print("send msg ok : ", self.command)
@@ -70,4 +68,6 @@ class PPTClient:
             self.status = '連接失敗'
             print('\r\nother error occur ')
             time.sleep(3)
+        if command == 'Quit ppt mode':
+            self.quit_ppt()
 

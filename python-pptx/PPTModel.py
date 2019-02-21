@@ -21,6 +21,7 @@ class PPTModel:
         self.ppt_number = 0
         self.ppt_len = 0
         self.normal_mode = True
+        self.ppt_ready = False
         self.ppt_text = []
         self.client = PPT_Client.PPTClient()
 
@@ -45,7 +46,6 @@ class PPTModel:
         return slide_texts
 
     def set_data(self, ppt_file, save_dir):
-
         self.normal_mode = True
         self.ppt_file = ppt_file
         self.save_dir = save_dir
@@ -57,6 +57,8 @@ class PPTModel:
         self.save_dir = self.save_dir.replace('/', r'\\')
 
         self.ppt2png(self.fname, self.ppt_file, self.save_dir)
+
+        self.ppt_ready = True
 
     def img_set(self, w_box, h_box):
         if self.normal_mode:
@@ -118,6 +120,8 @@ class PPTModel:
             return True
         else:
             return False
+    def ppt_ready(self):
+        return self.ppt_ready
 
     def get_ppt_number(self):
         return self.ppt_number
@@ -131,6 +135,8 @@ class PPTModel:
         return self.link
 
     def link_success(self):
+        self.link = self.client.get_status()
+        print(self.link)
         if self.link == '關閉連線' or self.link == '連線失敗' or self.link == "尚未連線":
             return False
         else:
@@ -146,6 +152,8 @@ class PPTModel:
             send_text += text + ":::"
 
         self.client.set_command(send_text)
+        self.link = self.client.get_status()
+        return self.link
 
     def close_connection(self):
         self.client.set_command('Quit ppt mode')

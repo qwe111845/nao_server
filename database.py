@@ -136,13 +136,26 @@ class MysqlClass(object):
         else:
             return True
 
+    def get_word(self, unit):
+        sql = "use essential_english_words_1;"
+        self.cursor.execute(sql)
+        sql = "SELECT word FROM words WHERE unit = {};".format(str(unit))
+        self.cursor.execute(sql)
+        words = ''
+        results = self.cursor.fetchall()
+        print(results)
+        for res in results:
+            words += res[0] + ";;"
+
+        sql = "use student;"
+        self.cursor.execute(sql)
+        return words
+
     def get_reading(self, unit):
         sql = "use network;"
         self.cursor.execute(sql)
-        print(1)
         sql = "SELECT content FROM reading WHERE unit = {};".format(str(unit))
         self.cursor.execute(sql)
-        print(2)
         reading = ''
         results = self.cursor.fetchall()
         print(results)

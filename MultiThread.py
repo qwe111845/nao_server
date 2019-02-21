@@ -178,6 +178,14 @@ class MultiThread(object):
                         client.send(response)
                         link = False
 
+                    elif data == 'word':
+                        client.send('Which unit do you want to choose?')
+                        word_unit = client.recv(size)
+                        word_data = self.db.get_word(word_unit)
+                        time.sleep(0.5)
+                        client.sendall(word_data)
+                        link = False
+
                     elif data == 'reading':
                         client.send('Which unit do you want to choose?')
                         reading_unit = client.recv(size)

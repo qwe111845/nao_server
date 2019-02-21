@@ -6,7 +6,7 @@ import speech_recognition as sr
 from os import path
 #AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "english.wav")
 # AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "french.aiff")
-AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "chinese.flac")
+AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "02.mp3")
 
 # use the audio file as the audio source
 r = sr.Recognizer()
