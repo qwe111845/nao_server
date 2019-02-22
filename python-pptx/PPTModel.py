@@ -120,7 +120,8 @@ class PPTModel:
             return True
         else:
             return False
-    def ppt_ready(self):
+
+    def ppt_is_ready(self):
         return self.ppt_ready
 
     def get_ppt_number(self):

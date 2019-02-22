@@ -110,7 +110,7 @@ class PPTController:
     def nao_speak(self):
         if not self.model.link_success():
             tm.showinfo(title='wrong', message='請連接機器人後才能說話')
-        elif not self.model.ppt_ready():
+        elif not self.model.ppt_is_ready():
             tm.showinfo(title='wrong', message='請設定PPT後才能說話')
         else:
             link = self.model.nao_speak()
