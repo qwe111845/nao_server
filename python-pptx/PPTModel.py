@@ -49,6 +49,7 @@ class PPTModel:
         self.normal_mode = True
         self.ppt_file = ppt_file
         self.save_dir = save_dir
+        self.ppt_text = []
 
         fstart = self.ppt_file.rindex('/')
         self.fname = self.ppt_file[fstart + 1:-5]
