@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-#import pymysql
+# import pymysql
 import threading
 import MySQLdb
 import functools
@@ -123,7 +123,7 @@ class MysqlClass(object):
 
         return results[0]
 
-    def get_account(self, account):
+    def get_teacher_account(self, account):
 
         sql = "SELECT teacher_id FROM teacher_data " + \
               "WHERE teacher_id = \"{}\";".format(account)
@@ -135,6 +135,23 @@ class MysqlClass(object):
             return False
         else:
             return True
+
+    def get_student_account(self, account):
+
+        sql = "SELECT unit, title FROM essential_english_words_1.unit WHERE unit_id = (SELECT" + \
+              " current_course FROM 	student.course_progress WHERE sid = \"{}\");".format(account)
+        self.cursor.execute(sql)
+        results = self.cursor.fetchone()
+
+        if len(results) == 0:
+            return 'no account'
+        else:
+            stu_data = ''
+            for i in results:
+                stu_data += str(i) + ';'
+
+            stu_data = stu_data[:-1]
+            return stu_data
 
     def get_word(self, unit):
         sql = "use essential_english_words_1;"

@@ -1,23 +1,10 @@
 # -*- coding: UTF-8 -*-
-import socket
-import wave
-
-from moviepy.audio.io.AudioFileClip import AudioFileClip
-from moviepy.video.io.VideoFileClip import VideoFileClip
-
-import database as d
-import json
-import threading
-import matplotlib.pyplot as plt
-import numpy as np
 
 
+import database as db
 
-clip1 = AudioFileClip('record/d0342273/' + 'd0342273 19-01-31 21\'33-record.wav')
-clip2 = VideoFileClip('record/d0342273/' + 'd0342273 19-01-31 21\'33-video.avi ')
-
-new_video = clip2.set_audio(clip1)
-new_video.write_videofile('record/d0342273/d0342273 19-01-31 21\'33.mp4')
+a = '00000000'
+print(a)
 """
 
 filepath = "record/d0342273/d0342273-record.wav"  # 添加路径

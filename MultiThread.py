@@ -239,10 +239,19 @@ class MultiThread(object):
                     elif data == 'account':
                         client.send('account')
                         teacher_account = client.recv(1024)
-                        if self.db.get_account(teacher_account):
+                        if self.db.get_teacher_account(teacher_account):
                             client.send('log in')
                         else:
                             client.send('no account')
+                        link = False
+                    elif data == 'student account':
+                        client.send('account')
+                        student_account = client.recv(1024)
+                        stu_data = self.db.get_student_account(student_account)
+                        if stu_data == 'no account':
+                            client.send('no account')
+                        else:
+                            client.send(stu_data)
                         link = False
 
                     else:
