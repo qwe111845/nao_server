@@ -244,6 +244,7 @@ class MultiThread(object):
                         else:
                             client.send('no account')
                         link = False
+
                     elif data == 'student account':
                         client.send('account')
                         student_account = client.recv(1024)
@@ -252,6 +253,12 @@ class MultiThread(object):
                             client.send('no account')
                         else:
                             client.send(stu_data)
+                        link = False
+                    elif data == 'update progress':
+                        client.send('ok')
+                        student_data = client.recv(1024)
+                        progress = self.db.update_progress(student_data)
+                        client.send(progress)
                         link = False
 
                     else:

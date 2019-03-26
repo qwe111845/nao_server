@@ -1,11 +1,88 @@
 # -*- coding: UTF-8 -*-
 
+import os, io
+from scipy.io import wavfile
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/lin/Desktop/googlecloud/Speech To Text class-225971fffeaf.json"
+print(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
+import speech_recognition as sr
+def transcribe_gcs(gcs_uri):
+    """Asynchronously transcribes the audio file specified by the gcs_uri."""
+    from google.cloud import speech
+    from google.cloud.speech import enums
+    from google.cloud.speech import types
+    client = speech.SpeechClient()
 
-import database as db
+    audio = types.RecognitionAudio(uri=gcs_uri)
+    config = types.RecognitionConfig(
+        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=48000,
+        audio_channel_count=4,
+        language_code='en-US')
 
-a = '00000000'
-print(a)
+    operation = client.long_running_recognize(config, audio)
+
+    print('Waiting for operation to complete...')
+    response = operation.result(timeout=90)
+
+    # Each result is for a consecutive portion of the audio. Iterate through
+    # them to get the transcripts for the entire audio file.
+    for result in response.results:
+        # The first alternative is the most likely one for this portion.
+        print(u'Transcript: {}'.format(result.alternatives[0].transcript))
+        print('Confidence: {}'.format(result.alternatives[0].confidence))
+
+transcribe_gcs("gs://speech_to_text_class/d0342273 2019-03-07 17'58-record.wav")
 """
+def transcribe_file(speech_file):
+    from google.cloud import speech
+    from google.cloud.speech import enums
+    from google.cloud.speech import types
+    client = speech.SpeechClient()
+
+    r = sr.Recognizer()
+    with io.open(speech_file, 'rb') as audio_file:
+        content = audio_file.read()
+
+    audio = types.RecognitionAudio(content=content)
+    config = types.RecognitionConfig(
+        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=48000,
+        audio_channel_count=4,
+        language_code='zh-TW')
+
+    response = client.recognize(config, audio)
+    # Each result is for a consecutive portion of the audio. Iterate through
+    # them to get the transcripts for the entire audio file.
+    for result in response.results:
+        # The first alternative is the most likely one for this portion.
+        print(u'Transcript: {}'.format(result.alternatives[0].transcript))
+
+
+def setchannel(file_path):
+    import numpy as np
+    sameple_rate, music_data = wavfile.read(file_path)
+    left = []
+    right = []
+    front = []
+    back = []
+    for item in music_data:
+        left.append(item[0])
+        right.append(item[1])
+        front.append(item[2])
+        back.append(item[3])
+
+
+    wavfile.write('left.wav', sameple_rate, np.array(left))
+    wavfile.write('right.wav', sameple_rate, np.array(right))
+    wavfile.write('front.wav', sameple_rate, np.array(right))
+    wavfile.write('back.wav', sameple_rate, np.array(right))
+
+transcribe_file("record/d0342273/d0342273 2019-02-28 16'30-record.wav")
+#transcribe_file("right.wav")
+setchannel("record/d0342273/d0342273 2019-02-28 16'30-record.wav")
+
+
+
 
 filepath = "record/d0342273/d0342273-record.wav"  # 添加路径
 f = wave.open(filepath, 'rb')
@@ -42,63 +119,6 @@ plt.grid('on')  # 标尺，on：有，off:无。
 plt.show()
 
 
-data = {'character_say': ["I want to welcome Nick Carpenter to our staff meeting.We're so glad to have you on " + \
-                          "our team, Nick. Let's all introduce ourselves.", 'And what do you like to do in your free time?', 'Thanks, Lucy. What about you. Nick ?'], 'character': ['Rose', 'Rose', 'Rose'], 'student_say': ["I want to welcome Nick comforter to our staff meeting we are so glad to have you on our team make let's all introduce ourselves", 'and hot do you like to do in your free time', 'sex Lucy heart about unique'], 'student': ['m0626957', 'm0626957', 'm0626957']}
-
-stu = d.MysqlClass()
-stu.student_conversation(json.dumps(data))
-print(json.dumps(data))
-print(type(json.dumps(data)))
-
-
-m = d.MysqlClass()
-
-print(m.get_bulletin())
-sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-sock.bind(('192.168.0.113', 5555))
-
-sock.listen(10)
-
-def listen_to_client(client, address):
-
-    print('connect by: ', address)
-    size = 2048
-    link = True  # type: bool
-    while link:
-        try:
-            data = client.recv(size)
-            if data:
-                print(data.decode('utf-8'))
-        except:
-            break
-
-while True:
-    client, address = sock.accept()
-    client.settimeout(300)
-    threading.Thread(target=listen_to_client, args=(client, address)).start()
-
-
-
-
-import speech_recognition as sr
-
-# obtain path to "english.wav" in the same folder as this script
-from os import path
-AUDIO_FILE = path.join(path.dirname(path.realpath(__file__)), "229-28.wav")
-
-r = sr.Recognizer()
-with sr.AudioFile(AUDIO_FILE) as source:
-    audio = r.record(source)  # read the entire audio file
-try:
-    # for testing purposes, we're just using the default API key
-    # to use another API key, use `r.recognize_google(audio, key="GOOGLE_SPEECH_RECOGNITION_API_KEY")`
-    # instead of `r.recognize_google(audio)`
-    print("Google Speech Recognition thinks you said " + r.recognize_google(audio, language="zh-TW"))
-except sr.UnknownValueError:
-    print("Google Speech Recognition could not understand audio")
-except sr.RequestError as e:
-    print("Could not request results from Google Speech Recognition service; {0}".format(e))
 
 """
 

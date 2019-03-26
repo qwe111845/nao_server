@@ -138,8 +138,8 @@ class MysqlClass(object):
 
     def get_student_account(self, account):
 
-        sql = "SELECT unit, title FROM essential_english_words_1.unit WHERE unit_id = (SELECT" + \
-              " current_course FROM 	student.course_progress WHERE sid = \"{}\");".format(account)
+        sql = "SELECT * FROM essential_english_words_1.unit WHERE unit_id = (SELECT" + \
+              " current_course FROM student.course_progress WHERE sid = \"{}\");".format(account)
         self.cursor.execute(sql)
         results = self.cursor.fetchone()
 
@@ -153,10 +153,21 @@ class MysqlClass(object):
             stu_data = stu_data[:-1]
             return stu_data
 
+    def update_progress(self, data):
+        stu_data = data.split(';')
+        student = stu_data[0]
+        course = stu_data[1]
+
+        sql = "UPDATE student.course_progress SET current_course = {} WHERE sid = \"{}\";".format(course, student)
+        self.cursor.execute(sql)
+        self.db.commit()
+
     def get_word(self, unit):
         sql = "use essential_english_words_1;"
         self.cursor.execute(sql)
-        sql = "SELECT word FROM words WHERE unit = {};".format(str(unit))
+        sql = "SELECT word FROM words WHERE unit = (SELECT unit FROM essential_english_words_1.unit WHERE" + \
+              " unit_id = {});".format(str(unit))
+        print(sql)
         self.cursor.execute(sql)
         words = ''
         results = self.cursor.fetchall()
