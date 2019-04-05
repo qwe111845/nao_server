@@ -1,6 +1,7 @@
 import os
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/lin/Desktop/googlecloud/Speech To Text class-225971fffeaf.json"
-print(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
+
 
 def transcribe_gcs(gcs_uri):
     """Asynchronously transcribes the audio file specified by the gcs_uri."""
@@ -13,7 +14,7 @@ def transcribe_gcs(gcs_uri):
     config = types.RecognitionConfig(
         encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=48000,
-        audio_channel_count=4,
+        audio_channel_count=2,
         language_code='en-US')
 
     operation = client.long_running_recognize(config, audio)
@@ -23,7 +24,21 @@ def transcribe_gcs(gcs_uri):
 
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
+    transcript = ''
+    transcripts = []
+    confidence = []
     for result in response.results:
         # The first alternative is the most likely one for this portion.
+        transcript += result.alternatives[0].transcript
+        transcripts.append(result.alternatives[0].transcript)
+        confidence.append(result.alternatives[0].confidence)
         print(u'Transcript: {}'.format(result.alternatives[0].transcript))
         print('Confidence: {}'.format(result.alternatives[0].confidence))
+
+    print(transcript)
+    print(transcripts)
+    print(confidence)
+
+
+transcribe_gcs('gs://speech_to_text_class/unit 2/unit2.wav')
+

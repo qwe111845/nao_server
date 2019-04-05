@@ -251,7 +251,6 @@ class MysqlClass(object):
         sql_sentence = ''
         sid = str(conversation['student'][0])
         character = str(conversation['character'][0])
-        print(character)
         for i in range(len(conversation['student'])):
             stu_say = conversation['student_say'][i].replace("'", r"\'")
             chr_say = conversation['character_say'][i].replace("'", r"\'")
@@ -267,5 +266,34 @@ class MysqlClass(object):
             self.db.commit()
         except NameError:
             self.db.rollback()
+
+        return True
+
+    def record_quiz_answer(self, student_reading_log):
+        import json
+        datetime = 'NOW()'
+        reading_log = json.loads(student_reading_log)
+        sql_sentence = ''
+        sid = str(reading_log['sid'])
+        unit = str(reading_log['unit'])
+
+        for i in range(len(reading_log['order'])):
+            stu_r_ans = reading_log['stu_read_ans'][i].replace("'", r"\'")
+            stu_ans = reading_log['stu_answer'][i]
+            order = reading_log['order'][i]
+            wer = reading_log['wer'][i]
+            speed = reading_log['reading_speed'][i]
+            sql_sentence += "('{}', '{}', '{}', '{}', '{}', '{}', {}, {})," \
+                .format(sid, unit, order, stu_ans, stu_r_ans, wer, speed, datetime)
+
+        sql_sentence = "INSERT INTO `student`.`stu_reading_answer` (`sid`, `unit`, `order`, `stu_answer`, " \
+                       "`stu_read_ans`, `wer`, `reading_speed`, `reading_time`) VALUES {};".format(sql_sentence[:-1])
+        print(sql_sentence)
+        try:
+            self.cursor.execute(sql_sentence)
+            self.db.commit()
+        except NameError:
+            self.db.rollback()
+            return False
 
         return True

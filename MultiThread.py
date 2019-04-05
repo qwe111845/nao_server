@@ -11,6 +11,7 @@ from moviepy.editor import VideoFileClip
 import database
 import DBCourse
 
+
 class MultiThread(object):
     def __init__(self, host, port):
 
@@ -279,6 +280,21 @@ class MultiThread(object):
                         else:
                             client.send(stu_data)
                         link = False
+
+                    elif data == 'quiz_log':
+                        client.send('log')
+                        student_reading_log = client.recv(2048)
+                        record_success = self.db.record_quiz_answer(student_reading_log)
+                        if record_success:
+                            print('閱讀測驗紀錄成功')
+                            client.send('record success')
+                            print(student_reading_log)
+                        else:
+                            client.send('record failure')
+                            print('閱讀測驗紀錄錯誤')
+                            print(student_reading_log)
+                        link = False
+
                     elif data == 'update progress':
                         client.send('ok')
                         student_data = client.recv(1024)
