@@ -1,37 +1,13 @@
 # -*- coding: UTF-8 -*-
 
-import os, io
-from scipy.io import wavfile
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "C:/Users/lin/Desktop/googlecloud/Speech To Text class-225971fffeaf.json"
-print(os.environ['GOOGLE_APPLICATION_CREDENTIALS'])
-import speech_recognition as sr
-def transcribe_gcs(gcs_uri):
-    """Asynchronously transcribes the audio file specified by the gcs_uri."""
-    from google.cloud import speech
-    from google.cloud.speech import enums
-    from google.cloud.speech import types
-    client = speech.SpeechClient()
 
-    audio = types.RecognitionAudio(uri=gcs_uri)
-    config = types.RecognitionConfig(
-        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=48000,
-        audio_channel_count=4,
-        language_code='en-US')
 
-    operation = client.long_running_recognize(config, audio)
+#transcribe_gcs("gs://speech_to_text_class/d0342273 2019-03-07 17'58-record.wav")
 
-    print('Waiting for operation to complete...')
-    response = operation.result(timeout=90)
 
-    # Each result is for a consecutive portion of the audio. Iterate through
-    # them to get the transcripts for the entire audio file.
-    for result in response.results:
-        # The first alternative is the most likely one for this portion.
-        print(u'Transcript: {}'.format(result.alternatives[0].transcript))
-        print('Confidence: {}'.format(result.alternatives[0].confidence))
-
-transcribe_gcs("gs://speech_to_text_class/d0342273 2019-03-07 17'58-record.wav")
+import DBCourse
+a = DBCourse.DBCourse()
+a.get_word('1')
 """
 def transcribe_file(speech_file):
     from google.cloud import speech
@@ -83,7 +59,9 @@ setchannel("record/d0342273/d0342273 2019-02-28 16'30-record.wav")
 
 
 
-
+import wave
+import numpy as np
+import matplotlib.pyplot as plt
 filepath = "record/d0342273/d0342273-record.wav"  # 添加路径
 f = wave.open(filepath, 'rb')
 
@@ -97,6 +75,9 @@ waveData = np.reshape(waveData, [nframes, nchannels])
 f.close()
 # plot the wave
 time = np.arange(0, nframes) * (1.0 / framerate)
+
+print((1.0 * nframes)/(1.0 * framerate))
+
 plt.figure()
 plt.subplot(5, 1, 1)
 plt.plot(time, waveData[:, 0])
@@ -118,9 +99,9 @@ plt.title("Ch-3 wavedata")
 plt.grid('on')  # 标尺，on：有，off:无。
 plt.show()
 
-
-
 """
+
+
 
 
 

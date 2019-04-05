@@ -9,7 +9,7 @@ from moviepy.editor import AudioFileClip
 from moviepy.editor import VideoFileClip
 
 import database
-
+import DBCourse
 
 class MultiThread(object):
     def __init__(self, host, port):
@@ -20,6 +20,7 @@ class MultiThread(object):
         self.sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self.sock.bind((self.host, self.port))
         self.db = database.MysqlClass()
+        self.dbc = DBCourse.DBCourse()
         self.course = ''
         self.results = ''
         self.robot_port = 5400
@@ -186,6 +187,14 @@ class MultiThread(object):
                         client.sendall(word_data)
                         link = False
 
+                    elif data == 'word_course':
+                        client.send('Which unit do you want to choose?')
+                        word_unit = client.recv(size)
+                        word_data = self.dbc.get_word(word_unit)
+                        time.sleep(0.5)
+                        client.sendall(word_data)
+                        link = False
+
                     elif data == 'reading':
                         client.send('Which unit do you want to choose?')
                         reading_unit = client.recv(size)
@@ -200,6 +209,14 @@ class MultiThread(object):
                         conversation_character = self.db.get_conversation(conversation_unit).encode('utf-8')
                         time.sleep(0.5)
                         client.sendall(conversation_character)
+                        link = False
+
+                    elif data == 'quiz':
+                        client.send('Which unit do you want to choose?')
+                        quiz_unit = client.recv(size)
+                        quiz_data = self.db.get_quiz(quiz_unit)
+                        time.sleep(0.5)
+                        client.sendall(quiz_data)
                         link = False
 
                     elif data == 'log':
@@ -245,10 +262,18 @@ class MultiThread(object):
                             client.send('no account')
                         link = False
 
+                    elif data == 'teacher account':
+                        client.send('account')
+                        teacher_account = client.recv(1024)
+                        result = self.dbc.get_student_account(teacher_account)
+                        client.send(result)
+                        link = False
+
                     elif data == 'student account':
                         client.send('account')
                         student_account = client.recv(1024)
                         stu_data = self.db.get_student_account(student_account)
+                        print(stu_data)
                         if stu_data == 'no account':
                             client.send('no account')
                         else:
@@ -261,6 +286,12 @@ class MultiThread(object):
                         client.send(progress)
                         link = False
 
+                    elif data == 'wer':
+                        from jiwer import wer
+                        client.send('ok')
+                        student_say = client.recv(1024).split(';;')
+                        wer = str(int((1 - wer(student_say[0], student_say[1])) * 100))
+                        client.send(wer)
                     else:
                         print(type(data), '傳送', data.decode('utf-8'))
                         client.sendall(data.decode('utf-8'))

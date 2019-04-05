@@ -58,22 +58,22 @@ class MysqlClass(object):
         sql = "SELECT course_name FROM course_information WHERE course_teacher = '{}' " \
               "and course_dayofweek = {} and course_starthour <= {} and course_endhour >= {}" \
             .format(course_data[0], course_data[1], course_data[2], course_data[2])
-
+        print(sql)
         self.cursor.execute(sql)
         results = self.cursor.fetchone()
 
         if results is not None:
             return results[0]
         else:
-
             return '目前沒有課程'
 
     def get_student_data(self, course):
         students = ''
+        print(course)
         try:
             print('連接mysql')
             course_id = str(self.get_course_id(course))
-
+            print(course_id)
             sql = "SELECT student_id,student_name FROM student_data ,practice_courses as p " + \
                   "WHERE student_id = p.stu_id and course_id = {};".format(course_id)
 
@@ -180,9 +180,8 @@ class MysqlClass(object):
         return words
 
     def get_reading(self, unit):
-        sql = "use network;"
-        self.cursor.execute(sql)
-        sql = "SELECT content FROM reading WHERE unit = {};".format(str(unit))
+
+        sql = "SELECT content FROM network.reading WHERE unit = {};".format(str(unit))
         self.cursor.execute(sql)
         reading = ''
         results = self.cursor.fetchall()
@@ -190,16 +189,43 @@ class MysqlClass(object):
         for res in results:
             reading += res[0] + ";;"
 
-        sql = "use student;"
-        self.cursor.execute(sql)
         return reading
+
+    def get_quiz(self, unit):
+
+        import json
+        sql = "SELECT q.`order`, q.answer, q.quiz, a.content FROM essential_english_words_1.unit_quiz AS q," \
+              "essential_english_words_1.unit_answer AS a WHERE	q.unit = {} AND a.unit = {}	AND " \
+              "a.`q_order` = q.`order`  AND q.answer = a.answer;".format(str(unit), str(unit))
+
+        print(sql)
+        self.cursor.execute(sql)
+
+        order = []
+        answer = []
+        quizes = []
+        content = []
+
+        quiz = {'order': [], 'answer': [], 'quiz': [], 'content': []}
+        results = self.cursor.fetchall()
+
+        for res in results:
+            order.append(res[0])
+            answer.append(res[1])
+            quizes.append(res[2])
+            content.append(res[3])
+
+        quiz['order'] = order
+        quiz['answer'] = answer
+        quiz['quiz'] = quizes
+        quiz['content'] = content
+
+        return json.dumps(quiz)
 
     def get_conversation(self, unit):
         import json
-        sql = "use network;"
-        self.cursor.execute(sql)
 
-        sql = "SELECT `order`, `character`, `content` FROM conversation WHERE unit = {};".format(str(unit))
+        sql = "SELECT `order`, `character`, `content` FROM network.conversation WHERE unit = {};".format(str(unit))
         self.cursor.execute(sql)
 
         character = []
@@ -214,9 +240,6 @@ class MysqlClass(object):
         conversation['order'] = order
         conversation['characters'] = character
         conversation['content'] = content
-
-        sql = "use student;"
-        self.cursor.execute(sql)
 
         return json.dumps(conversation)
 
