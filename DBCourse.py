@@ -1,10 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# import pymysql
-import threading
-import MySQLdb
-import functools
-import time
+
 import database as db
 
 
@@ -55,3 +51,34 @@ class DBCourse(db.MysqlClass):
             words += res[0] + ";;"
 
         return words
+
+    def get_quiz(self, unit):
+
+        import json
+        sql = "SELECT q.`order`, q.answer, q.quiz, a.content FROM course_3565.lesson_quiz AS q," \
+              "course_3565.lesson_answer AS a WHERE	q.lesson = {} AND a.lesson = {}	AND " \
+              "a.`q_order` = q.`order`  AND q.answer = a.answer;".format(str(unit), str(unit))
+
+        print(sql)
+        self.cursor.execute(sql)
+
+        order = []
+        answer = []
+        quizes = []
+        content = []
+
+        quiz = {'order': [], 'answer': [], 'quiz': [], 'content': []}
+        results = self.cursor.fetchall()
+
+        for res in results:
+            order.append(res[0])
+            answer.append(res[1])
+            quizes.append(res[2])
+            content.append(res[3])
+
+        quiz['order'] = order
+        quiz['answer'] = answer
+        quiz['quiz'] = quizes
+        quiz['content'] = content
+
+        return json.dumps(quiz)

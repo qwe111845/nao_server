@@ -78,6 +78,34 @@ class MultiThread(object):
         t.join()
         print('Finished saving ' + filename + ' ...')
 
+        t = threading.Thread(target=self.upload_and_record, args=(sid, path))
+        t.setDaemon(True)
+        t.start()
+        t.join()
+
+    def upload_and_record(self, sid, path):
+        import WavInfo
+        import SpeechRecognition
+        from jiwer import wer
+
+        print('begin to get reading')
+        unit, reading_len, content = self.db.get_reading_content(sid)
+        print('finish get reading')
+
+        print('begin to upload google cloud')
+        destination_blob_name = 'unit ' + unit + '/' + sid + '.wav'
+        SpeechRecognition.upload_blob("speech_to_text_class", path, destination_blob_name)
+
+        print('begin to transcribe file')
+        gcs_url = "gs://speech_to_text_class/" + destination_blob_name
+        transcript, confidence = SpeechRecognition.transcribe_gcs(gcs_url)
+        print('finis transcribe')
+
+        print('Start calculating reading speed and word error rate')
+        time = WavInfo.get_wav_time(path)
+        reading_speed = reading_len / time
+        word_error_rate = 1 - wer(content, transcript)
+
     def merge_file(self, client):
         try:
             client.send('Welcome from server!')
@@ -216,6 +244,14 @@ class MultiThread(object):
                         client.send('Which unit do you want to choose?')
                         quiz_unit = client.recv(size)
                         quiz_data = self.db.get_quiz(quiz_unit)
+                        time.sleep(0.5)
+                        client.sendall(quiz_data)
+                        link = False
+
+                    elif data == 'quiz_course':
+                        client.send('Which unit do you want to choose?')
+                        quiz_unit = client.recv(size)
+                        quiz_data = self.dbc.get_quiz(quiz_unit)
                         time.sleep(0.5)
                         client.sendall(quiz_data)
                         link = False

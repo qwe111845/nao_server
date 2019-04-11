@@ -297,3 +297,12 @@ class MysqlClass(object):
             return False
 
         return True
+
+    def get_reading_content(self, sid):
+        sql = "select unit, content from essential_english_words_1.reading_content where rid = (select " \
+              "current_course FROM student.course_progress where sid = '{}');".format(str(sid))
+
+        self.cursor.execute(sql)
+        results = self.cursor.fetchone()
+        reading_len = len(results[1].split(' '))
+        return results[0], reading_len, results[1]
