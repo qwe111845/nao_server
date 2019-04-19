@@ -2,37 +2,14 @@
 
 
 
-#transcribe_gcs("gs://speech_to_text_class/d0342273 2019-03-07 17'58-record wav")
 
 from jiwer import wer
-avg_confidence = 4.1154165416846434685461465463541854
-print float('%.4f' % avg_confidence)
-import database as db
-a = db.MysqlClass()
-b,c,d = a.get_reading_content('d0342273')
-print(b)
 
-speak1 = "the laboratory Mia's father had a laboratory but she had no idea what was in it or dad always closed " \
-         "and locked the door when she knew that he used it to do projects for work you never told me I what " \
-         "these projects were one night me approach the door to the laboratory she stopped and thought I wonder " \
-         "what crazy experiment he is doing now suddenly she heard a loud noise it sounded like an evil laugh " \
-         "the noise scared her so she walked quickly the next night her friend Liz came to her house when this " \
-         "arrived Mia told her about the night before it was terrible she said why don't we see what is in " \
-         "their lives asked it will be a fun adventure Mia felt nervous about going into her father's laboratory " \
-         "but she agreed as always the door was locked they waited until me his father left the laboratory to " \
-         "eat dinner he didn't lock the door I said let's go for Tori was dark the girls walk down the stairs " \
-         "carefully Mia smelled strange chemicals what terrible thing was creating suddenly they heard an evil " \
-         "laugh it was even worse than the one me I heard the night before what if a monster was going to kill " \
-         "them I had to do something she shouted for help me as father ran into the room and turned on the lights " \
-         "he said you must have learned my secret to kill us me a sad monster the more need this for your birthday " \
-         "I wanted to give it to you then you can have it now I hope you like it"
-
-
-speak = "the first peacock Argos lived in ancient Greece he was a husband and a proud father he worked hard and did well at his job but one thing about him wasn't normal he was born with 100 eyes having many eyes was usually a benefit to him he had a chance to see many things also since he was very good at guarding things while sleeping he only rested a few days at a time the other stayed awake for Hera a Great Goddess is primary function was to guard a special cow the cow was very important to her it was her favorite that the most essential part of his job was to keep the cow loan it had to be kept separate from all the other cows and far away from people this was an easy job for Argos the cow just ate grass all day but the god Zeus wanted the cow he wanted to take it away from Harrah he had a plan he found a great music player he asked the man to play a beautiful song for Argos Zeus was certain Argos would go to sleep the song had an immediate effect Argos couldn't focus on his job he fell asleep Zeus saw this and he took the cow Sarah was very angry with our Gus she turned him into a peacock she put his many eyes on his tail Argos was very sad Zeus on how much trouble it caused Argos he made another plan he turned our goes into a group of stars he wanted our goes to remain in the sky forever even today about the site where all his problems began we can still see him in the night sky"
-truth = "The First Peacock Argos lived in Ancient Greece He was a husband and a proud father He worked hard and did well at his job But one thing about him wasn't normal He was born with 100 eyes Having many eyes was usually a benefit to him He had a chance to see many things Also since he had so many eyes he was very good at guarding things While sleeping he only rested a few eyes at a time The others stayed awake He worked for Hera a great goddess His primary function was to guard a special cow The Cow was very important to Hera It was her favorite pet The most essential part of his job was to keep the cow alone It had to be kept separate from all the other cows and far away from people This was an easy job for Argos The cow just ate grass all day But the god Zeus wanted the cow He wanted to take it away from Hera He had a plan He found a great music player He asked the man to play a beautiful song for Argos Zeus was certain Argos would go to sleep The song had an immediate effect Argos couldn't focus on his job He fell asleep Zeus saw this and he took the cow Hera was very angry with Argos She turned him into a peacock She put his many eyes on his tail Argos was very sad Zeus saw how much trouble he had caused Argos He made another plan He turned Argos into a group of stars He wanted Argos to remain in the sky forever Even today Argos' image remains there above the site where all his problems began We can still see him in the night sky"
-
-print(1-wer(truth, speak))
-
+speak = "Jones daughter was that bad. He fights people drinking and Joe had a great concerned about is it was not appropriate weight for a dog to behave as rent in the village west always spend the doctor by then the news about John Starks pray through the village of the paper wanted to go to John's house and try to instruct the dog to behave but it never will he try to be patient and taste the Teletubby count that also didn't work and to punish the dog how will I stay out of my dog's bad habit by himselfjust friend came to talk to him about Asia during that important meeting his friend said the people in a village asking me to represent them we want your dog to his to stop his head. Why don't you put a belt around the dog's neck this way we would hear your dog coming down the street was a great idea now if I could stay away from the dog it would not be able to buy anyone anymore the dark like the Bell two people look at him when they heard that when when men here to spell the Bell played when he work Monday John Stout stroll through the village and a message on all the dogs expect them to Wong to be a bail like it does a mass at his fail this said the Bell meds people avoid him just shook his head no they look at me because they like the Bell the other dog said you had the wrong idea of what makes you popular of course they like you fell and tells them where you are so they can avoid you you aren't able to find an animal you see being popular isn't something positive when it's for the wrong reason"
+truth ="the dogs Bell John's dog was a bad dog he bit people frequently John had great concern about this it was not an appropriate way for a dog to behave his friends in the village always expected that the news about John's dog spread through the village none of the people wanted to go to John's house John trying to instruct the dog to behave but it never worked he tried to be patient and teach the dog to be calm that also didn't work John didn't want to punish the dog how will I stop my dog's John asked himself John's friend came to talk to him about the issue during their important meeting his friend said the people in the village asked me to represent them we want your dog to stop this habit why don't you put a bell around the dog's neck this way we would hear your dog coming down the street John thought this was a great idea stay away from the dog would not be able to buy any more the dog like the people looked at him when they heard his bail this made the dog very content be like the song the Belle Plaine when you want one day John's dog stroll through the village and he expected them to want a bell but they lied to dispel they said the Bell made people avoid him John's dog shook his head no they look at me because they like the Bell the other dogs you have the wrong idea what makes you popular of course they like your bell it tells them where you are so they can you see being popular isn't something positive when it's for the wrong reason"
+t = "Well I'm from Brighton England I like to surf and I'm learning to fly small airplanes I don't like to bake cupcakes"
+s = "well I'm from flight Angela I like to Surf and I'm learning to fly small airplanes I don't like to bake cupcakes"
+print((1-wer(truth, speak)) * 100)
 """
 def transcribe_file(speech_file):
     from google cloud import speech

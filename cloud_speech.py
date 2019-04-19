@@ -1,5 +1,4 @@
-# -*- coding: UTF-8 -*-
-
+# -*- coding: utf-8 -*-
 import os
 from google.cloud import storage
 
@@ -17,13 +16,13 @@ def transcribe_gcs(gcs_uri):
     config = types.RecognitionConfig(
         encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
         sample_rate_hertz=48000,
-        audio_channel_count=2,
+        audio_channel_count=4,
         language_code='en-US')
 
     operation = client.long_running_recognize(config, audio)
 
     print('Waiting for operation to complete...')
-    response = operation.result(timeout=90)
+    response = operation.result(timeout=120)
 
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
@@ -47,9 +46,25 @@ def transcribe_gcs(gcs_uri):
     return transcript, float('%.4f' % avg_confidence)
 
 
-# transcript, avg_confidence = transcribe_gcs('gs://speech_to_text_class/unit 10/unit10.wav')
+"""
+import WavInfo
+from jiwer import wer
+import database as d
+db = d.MysqlClass()
+sid = "d0441423"
+unit, reading_len, content = db.get_reading_content(sid)
+path = "record/d0441423/d0441423 2019-04-16 19'52-record.wav"
+transcript, confidence = transcribe_gcs("gs://speech_to_text_class/unit 5/d0441423.wav")
+reading_time = WavInfo.get_wav_time(path)
+reading_speed = int(reading_len / (reading_time / 60.0))
+print (type(transcript))
+print (type(content))
+print reading_speed
+word_error_rate = (1 - wer(content.encode('utf-8'), str(transcript))) * 100
+word_error_rate = float('%.4f' % word_error_rate)
 
-
+db.record_reading(sid, unit, transcript, reading_speed, word_error_rate, confidence)
+"""
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
     """Uploads a file to the bucket."""
@@ -64,5 +79,4 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
         destination_blob_name))
 
 
-upload_blob("speech_to_text_class", r"C:\Users\lin\PycharmProjects\nao_server\record\m0626957\m0626957 2019-04-10 2"
-                                    r"0'10-record.wav", "unit 10/m0626957.wav")
+

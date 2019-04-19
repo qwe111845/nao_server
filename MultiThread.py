@@ -3,6 +3,7 @@
 import os
 import socket
 import threading
+import multiprocessing as mp
 import time
 
 from moviepy.editor import AudioFileClip
@@ -46,7 +47,7 @@ class MultiThread(object):
         if not have_dir:
             os.mkdir(path + sid, 0755)
             print('Dir not found! make new dir ' + sid)
-        with open(file_path, 'wb') as f:
+        with open(file_path, 'wb'):
             pass
 
     def recv_image(self, client, file_path):
@@ -60,6 +61,7 @@ class MultiThread(object):
         print('data received')
 
     def save_image(self, client):
+        import upload_cloud
         client.send('Welcome from server!')
         print("receiving, please wait for a second ...")
 
@@ -77,34 +79,7 @@ class MultiThread(object):
         t.start()
         t.join()
         print('Finished saving ' + filename + ' ...')
-
-        t = threading.Thread(target=self.upload_and_record, args=(sid, path))
-        t.setDaemon(True)
-        t.start()
-        t.join()
-
-    def upload_and_record(self, sid, path):
-        import WavInfo
-        import SpeechRecognition
-        from jiwer import wer
-
-        print('begin to get reading')
-        unit, reading_len, content = self.db.get_reading_content(sid)
-        print('finish get reading')
-
-        print('begin to upload google cloud')
-        destination_blob_name = 'unit ' + unit + '/' + sid + '.wav'
-        SpeechRecognition.upload_blob("speech_to_text_class", path, destination_blob_name)
-
-        print('begin to transcribe file')
-        gcs_url = "gs://speech_to_text_class/" + destination_blob_name
-        transcript, confidence = SpeechRecognition.transcribe_gcs(gcs_url)
-        print('finis transcribe')
-
-        print('Start calculating reading speed and word error rate')
-        time = WavInfo.get_wav_time(path)
-        reading_speed = reading_len / time
-        word_error_rate = 1 - wer(content, transcript)
+        upload_cloud.upload_and_record(self.db, sid, path)
 
     def merge_file(self, client):
         try:
@@ -146,7 +121,6 @@ class MultiThread(object):
                 data = client.recv(size)
                 if data:
                     print(data.decode('utf-8'))
-
                     if data == '點名':
                         client.send('接收點名')
                         roll_call_course = client.recv(size)
@@ -252,6 +226,7 @@ class MultiThread(object):
                         client.send('Which unit do you want to choose?')
                         quiz_unit = client.recv(size)
                         quiz_data = self.dbc.get_quiz(quiz_unit)
+                        print(quiz_data)
                         time.sleep(0.5)
                         client.sendall(quiz_data)
                         link = False
@@ -327,7 +302,7 @@ class MultiThread(object):
                             print(student_reading_log)
                         else:
                             client.send('record failure')
-                            print('閱讀測驗紀錄錯誤')
+                            print("紀錄失敗")
                             print(student_reading_log)
                         link = False
 
@@ -335,6 +310,13 @@ class MultiThread(object):
                         client.send('ok')
                         student_data = client.recv(1024)
                         progress = self.db.update_progress(student_data)
+                        client.send(progress)
+                        link = False
+
+                    elif data == 'update progress course':
+                        client.send('ok')
+                        student_data = client.recv(1024)
+                        progress = self.dbc.update_progress(student_data)
                         client.send(progress)
                         link = False
 
